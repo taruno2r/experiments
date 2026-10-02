@@ -68,3 +68,13 @@ list.addEventListener("click", (event) => {
     )
   );
 });
+
+// As a gallery preview, shrink the list to fit the card at any card width.
+if (document.documentElement.classList.contains("embedded")) {
+  const fit = () => {
+    list.style.zoom = "";
+    list.style.zoom = Math.min(0.85, (innerWidth - 24) / list.offsetWidth);
+  };
+  fit();
+  addEventListener("resize", fit);
+}
