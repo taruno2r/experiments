@@ -5,16 +5,16 @@ Small UI interaction experiments, each in its own folder, with a gallery page at
 ```
 index.html            gallery
 task-list/            one experiment (index.html, styles, script, assets, preview.mp4)
-tools/record/         records preview videos (not part of the site)
+tools/                local server and video recorder (not part of the site)
 ```
 
 ## Run locally
 
 ```bash
-python3 -m http.server 5180
+python3 tools/serve.py
 ```
 
-Then open http://localhost:5180.
+Then open http://localhost:5180. This server turns off browser caching, so edits always show up on a normal reload (a plain `python3 -m http.server` lets Chrome keep stale copies, especially inside the gallery previews).
 
 ## Add an experiment
 
