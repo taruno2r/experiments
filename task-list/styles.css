@@ -36,10 +36,11 @@ body {
   font-family: var(--task-font);
 }
 
+/* Lines up with the gallery's content column (1056px wide, 16px padding). */
 .back {
   position: fixed;
-  top: 20px;
-  left: 24px;
+  top: 32px;
+  left: max(16px, (100vw - 1056px) / 2 + 16px);
   font-size: 14px;
   color: var(--task-text-completed);
   text-decoration: none;
