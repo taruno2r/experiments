@@ -197,21 +197,6 @@
     letter-spacing: -0.01em;
   }
 
-  .reset {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: none;
-    border: 0;
-    color: var(--hint);
-    font: 500 13px "Inter", system-ui, sans-serif;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-  }
-  .reset:hover { color: var(--text); background: rgba(0,0,0,0.04); }
-
   .back {
     position: fixed;
     top: 20px;
@@ -223,11 +208,10 @@
   .back:hover { color: var(--text); }
 
   /* Inside the gallery preview: no site chrome, and boxes small enough to fit the card. */
-  .embedded .back,
-  .embedded .reset { display: none; }
+  .embedded .back { display: none; }
   .embedded, .embedded body { overflow: hidden; }
   .embedded body { background: transparent; }
-  .embedded { --box: 32px; --gap: 9px; }
+  .embedded { --box: 32px; --gap: 9px; --box-bg: #ececef; }
   .embedded .otp__hint { font-size: 13px; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -246,8 +230,6 @@
   <p class="otp__hint" id="otp-hint">Enter 123456 to pass</p>
   <div class="sr-only" aria-live="polite" id="otp-status" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
 </div>
-
-<button class="reset" id="reset" type="button">Reset</button>
 
 <script>
   const LENGTH = 6;
@@ -448,7 +430,10 @@
     setState("idle");
     inputs[0].focus();
   }
-  document.getElementById("reset").addEventListener("click", reset);
+
+  // Ready to type straight away — except as a gallery preview, where focus
+  // would show a caret in the thumbnail and pull focus from the gallery.
+  if (!document.documentElement.classList.contains("embedded")) inputs[0].focus();
 </script>
 </body>
 </html>
