@@ -1,7 +1,7 @@
 // Records an experiment's interaction to a 1920×1080, 60fps H.264 MP4
 // (suitable for X) and saves it as <experiment>/preview.mp4.
 //
-// Usage (with the site served on :5173):
+// Usage (with the site served on :5180):
 //   npm run record -- task-list
 //
 // Each experiment needs a script at demos/<experiment>.js that defines
@@ -20,7 +20,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
 
 const name = process.argv[2];
-const base = process.argv[3] ?? "http://localhost:5173";
+const base = process.argv[3] ?? "http://localhost:5180";
 const demo = path.join(here, "demos", `${name}.js`);
 if (!name || !existsSync(demo)) {
   console.error(`Usage: npm run record -- <experiment> [baseUrl]\nNo demo script at ${demo}`);

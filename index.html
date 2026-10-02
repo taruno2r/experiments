@@ -100,14 +100,13 @@
       border-bottom: 1px solid var(--border);
     }
 
-    /* Previews are recorded with room around the component; zoom in so it
-       fills the card. Tune per card with --zoom if needed. */
-    .card video {
+    /* Live, static render of the experiment page — not clickable. */
+    .card iframe {
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      transform: scale(var(--zoom, 1.6));
+      border: 0;
+      pointer-events: none;
     }
 
     .card-body {
@@ -135,12 +134,12 @@
       <p>Small UI interactions. Open one to play with it.</p>
     </header>
 
-    <!-- Add a card per experiment: folder name, preview.mp4, title, one line. -->
+    <!-- Add a card per experiment: folder name, title, one line. -->
     <ul class="grid">
       <li>
         <a class="card" href="task-list/">
           <div class="card-media">
-            <video src="task-list/preview.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <iframe src="task-list/" title="" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
           </div>
           <div class="card-body">
             <h2>Task List</h2>
