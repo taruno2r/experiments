@@ -9,22 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #fafafa;
+      --bg: #fcfcfc;
       --card: #ffffff;
-      --border: #ececee;
+      --card-border: #ededed;
+      --preview: #f7f7f7;
+      --preview-border: #efefef;
+      --button: #f2f2f2;
+      --button-hover: #e9e9e9;
       --text: #0a0a0a;
-      --muted: #71717a;
-      --radius: 16px;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0b0c;
-        --card: #141416;
-        --border: #232326;
-        --text: #f4f4f5;
-        --muted: #9a9aa3;
-      }
+      --muted: #737373;
     }
 
     * {
@@ -40,32 +33,22 @@
     }
 
     main {
-      max-width: 1080px;
+      max-width: 1056px;
       margin: 0 auto;
-      padding: 72px 24px 96px;
-    }
-
-    header {
-      margin-bottom: 48px;
+      padding: 32px 16px 80px;
     }
 
     h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
+      margin: 0 0 40px;
+      text-align: center;
+      font-size: 36px;
       font-weight: 500;
-      letter-spacing: -0.02em;
-    }
-
-    header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 24px;
+      letter-spacing: -0.03em;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
       gap: 24px;
       margin: 0;
       padding: 0;
@@ -73,35 +56,23 @@
     }
 
     .card {
-      display: block;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
+      position: relative;
+      padding: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
       background: var(--card);
-      color: inherit;
-      text-decoration: none;
-      transition: transform 200ms ease, border-color 200ms ease;
     }
 
-    .card:hover {
-      transform: translateY(-2px);
-      border-color: color-mix(in srgb, var(--border), var(--text) 15%);
-    }
-
-    .card:focus-visible {
-      outline: 2px solid #7c5cfa;
-      outline-offset: 3px;
-    }
-
-    .card-media {
+    .preview {
       overflow: hidden;
-      aspect-ratio: 16 / 9;
-      background: #ffffff;
-      border-bottom: 1px solid var(--border);
+      aspect-ratio: 8 / 7;
+      border: 1px solid var(--preview-border);
+      border-radius: 14px;
+      background: var(--preview);
     }
 
     /* Live, static render of the experiment page — not clickable. */
-    .card iframe {
+    .preview iframe {
       display: block;
       width: 100%;
       height: 100%;
@@ -109,14 +80,23 @@
       pointer-events: none;
     }
 
-    .card-body {
-      padding: 16px 20px 20px;
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 6px 4px 8px;
+    }
+
+    .meta-text {
+      flex: 1;
+      min-width: 0;
     }
 
     .card h2 {
-      margin: 0 0 4px;
-      font-size: 16px;
+      margin: 0 0 3px;
+      font-size: 14px;
       font-weight: 500;
+      line-height: 20px;
     }
 
     .card p {
@@ -125,27 +105,63 @@
       font-size: 14px;
       line-height: 20px;
     }
+
+    /* The whole card opens the experiment; the button is the visible cue. */
+    .open {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--button);
+      color: var(--text);
+      transition: background 150ms ease;
+    }
+
+    .open::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+    }
+
+    .card:hover .open {
+      background: var(--button-hover);
+    }
+
+    .open:focus-visible {
+      outline: 2px solid #7c5cfa;
+      outline-offset: 2px;
+    }
+
+    .open svg {
+      width: 16px;
+      height: 16px;
+    }
   </style>
 </head>
 <body>
   <main>
-    <header>
-      <h1>Experiments</h1>
-      <p>Small UI interactions. Open one to play with it.</p>
-    </header>
+    <h1>Experiments</h1>
 
     <!-- Add a card per experiment: folder name, title, one line. -->
     <ul class="grid">
-      <li>
-        <a class="card" href="task-list/">
-          <div class="card-media">
-            <iframe src="task-list/" title="" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
+      <li class="card">
+        <div class="preview">
+          <iframe src="task-list/" title="" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
+        </div>
+        <div class="meta">
+          <div class="meta-text">
+            <h2>Task list</h2>
+            <p>Tick, strike and reorder</p>
           </div>
-          <div class="card-body">
-            <h2>Task List</h2>
-            <p>Check items off and watch them settle into place.</p>
-          </div>
-        </a>
+          <a class="open" href="task-list/" aria-label="Open Task list">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5.5 4.5h6v6M11.5 4.5l-7 7" />
+            </svg>
+          </a>
+        </div>
       </li>
     </ul>
   </main>

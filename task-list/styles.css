@@ -49,8 +49,24 @@ body {
   color: var(--task-text);
 }
 
+/* Inside the gallery preview: no site chrome, and let the card's
+   background show through. */
 .embedded .back {
   display: none;
+}
+
+.embedded,
+.embedded body {
+  overflow: hidden;
+}
+
+.embedded body,
+.embedded .task-list > li {
+  background: transparent;
+}
+
+.embedded .task-list {
+  zoom: 0.85;
 }
 
 .task-list {
