@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OTP Input</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<script>
+  // Shown as a preview inside the gallery: hide site chrome.
+  if (window.self !== window.top) document.documentElement.classList.add("embedded");
+</script>
+<style>
+  :root {
+    --page-bg: #ededed;
+    --box-bg: #f4f5f9;
+    --text: #0a0a0a;
+    --hint: #9a9a9a;
+    --focus: #a6a6a8;
+    --error: #e5595b;
+    --success: #5db872;
+
+    --box: clamp(40px, 12vw, 80px);
+    --gap: 12px;
+    --radius: calc(var(--box) * 0.175);
+    --stroke: 2px;
+
+    --draw-duration: 600ms;
+    --wiggle-duration: 450ms;
+    --digit-duration: 220ms;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    background: var(--page-bg);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    display: grid;
+    place-items: center;
+    padding: 0 16px;
+  }
+
+  .otp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .otp__fields {
+    display: flex;
+    gap: var(--gap);
+  }
+
+  .otp__cell {
+    position: relative;
+    width: var(--box);
+    height: var(--box);
+  }
+
+  .otp__input {
+    width: 100%;
+    height: 100%;
+    border: var(--stroke) solid transparent;
+    border-radius: var(--radius);
+    background: var(--box-bg);
+    caret-color: transparent;
+    font: 400 calc(var(--box) * 0.45) / 1 "Inter", system-ui, sans-serif;
+    text-align: center;
+    padding: 0;
+    outline: none;
+    transition: border-color 150ms ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* The native text and caret are hidden; digits and the caret are drawn by the layer below. */
+  .otp__input { color: transparent; }
+  .otp__input::selection { background: transparent; }
+
+  .otp__digits {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .otp__digit {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    font: 400 calc(var(--box) * 0.45) / 1 "Inter", system-ui, sans-serif;
+  }
+
+  .otp__digit--enter { animation: digit-in var(--digit-duration) cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .otp__digit--leave { animation: digit-out var(--digit-duration) cubic-bezier(0.55, 0, 0.75, 0) both; }
+
+  /* Custom caret: only in a focused, empty box once any deleted digit has fully slid out,
+     so it can never overlap a number. */
+  .otp__caret {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1.5px;
+    height: 45%;
+    background: var(--text);
+    transform: translate(-50%, -50%);
+    display: none;
+    pointer-events: none;
+  }
+
+  .otp[data-state="idle"] .otp__cell:focus-within:not(.otp__cell--filled):not(.otp__cell--leaving) .otp__caret {
+    display: block;
+    animation: caret-blink 1s steps(1) infinite;
+  }
+
+  @keyframes caret-blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  @keyframes digit-in {
+    from { transform: translateY(70%); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+
+  @keyframes digit-out {
+    from { transform: translateY(0);   opacity: 1; }
+    to   { transform: translateY(70%); opacity: 0; }
+  }
+
+  /* Input (focused) state */
+  .otp__input:focus { border-color: var(--focus); }
+
+  /* While showing a result, the animated SVG border takes over */
+  .otp[data-state="success"] .otp__input,
+  .otp[data-state="error"] .otp__input { border-color: transparent; }
+  .otp[data-state="success"] .otp__input::selection,
+  .otp[data-state="error"] .otp__input::selection { background: transparent; }
+
+  /* Animated border overlay — the rect path begins at the top-left corner and runs clockwise */
+  .otp__border {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .otp__border rect {
+    fill: none;
+    stroke-width: var(--stroke);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+
+  .otp[data-state="success"] .otp__border rect { stroke: var(--success); }
+  .otp[data-state="error"] .otp__border rect { stroke: var(--error); }
+
+  .otp[data-state="success"] .otp__border rect,
+  .otp[data-state="error"] .otp__border rect {
+    opacity: 1;
+    animation: draw var(--draw-duration) cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+
+  @keyframes draw {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  /* Error wiggle — all six boxes move together */
+  .otp[data-state="error"] .otp__fields {
+    animation: wiggle var(--wiggle-duration) ease-in-out;
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-10px); }
+    30% { transform: translateX(9px); }
+    45% { transform: translateX(-7px); }
+    60% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+    90% { transform: translateX(1px); }
+  }
+
+  .otp__hint {
+    margin: 0;
+    color: var(--hint);
+    font-size: clamp(14px, 3.4vw, 24px);
+    letter-spacing: -0.01em;
+  }
+
+  .reset {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    border: 0;
+    color: var(--hint);
+    font: 500 13px "Inter", system-ui, sans-serif;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  .reset:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+
+  .back {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    color: var(--hint);
+    font: 400 14px "Inter", system-ui, sans-serif;
+    text-decoration: none;
+  }
+  .back:hover { color: var(--text); }
+
+  /* Inside the gallery preview: no site chrome, and boxes small enough to fit the card. */
+  .embedded .back,
+  .embedded .reset { display: none; }
+  .embedded, .embedded body { overflow: hidden; }
+  .embedded { --box: 32px; --gap: 9px; }
+  .embedded .otp__hint { font-size: 13px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .otp[data-state] .otp__border rect { animation-duration: 1ms !important; }
+    .otp[data-state="error"] .otp__fields { animation: none; }
+    .otp__digit--enter, .otp__digit--leave { animation-duration: 1ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<a class="back" href="../">← Experiments</a>
+
+<div class="otp" id="otp" data-state="idle">
+  <div class="otp__fields" role="group" aria-label="One-time passcode"></div>
+  <p class="otp__hint" id="otp-hint">Enter 123456 to pass</p>
+  <div class="sr-only" aria-live="polite" id="otp-status" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
+</div>
+
+<button class="reset" id="reset" type="button">Reset</button>
+
+<script>
+  const LENGTH = 6;
+  const CORRECT = "123456";
+  const SUCCESS_RESET_DELAY = 2000; // ms after success before clearing for a new entry
+
+  const root = document.getElementById("otp");
+  const fields = root.querySelector(".otp__fields");
+  const status = document.getElementById("otp-status");
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const inputs = [];
+
+  for (let i = 0; i < LENGTH; i++) {
+    const cell = document.createElement("div");
+    cell.className = "otp__cell";
+
+    const input = document.createElement("input");
+    input.className = "otp__input";
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.autocomplete = i === 0 ? "one-time-code" : "off";
+    input.maxLength = 1;
+    input.setAttribute("aria-label", `Digit ${i + 1} of ${LENGTH}`);
+    input.setAttribute("aria-describedby", "otp-hint");
+
+    // Border overlay: a rounded rect whose stroke draws in from the top-left corner.
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", "otp__border");
+    svg.setAttribute("aria-hidden", "true");
+    const rect = document.createElementNS(SVG_NS, "rect");
+    rect.setAttribute("pathLength", "1");
+    svg.appendChild(rect);
+
+    const layer = document.createElement("div");
+    layer.className = "otp__digits";
+    layer.setAttribute("aria-hidden", "true");
+
+    const caret = document.createElement("span");
+    caret.className = "otp__caret";
+    caret.setAttribute("aria-hidden", "true");
+
+    cell.append(input, layer, caret, svg);
+    fields.appendChild(cell);
+    inputs.push(input);
+  }
+
+  // Size the rect to the cell so the stroke sits exactly where the CSS border would.
+  function layoutBorders() {
+    const cs = getComputedStyle(root);
+    const stroke = parseFloat(cs.getPropertyValue("--stroke"));
+    inputs.forEach((input) => {
+      const rect = input.parentElement.querySelector("rect");
+      const { width, height } = input.getBoundingClientRect();
+      const r = parseFloat(getComputedStyle(input).borderTopLeftRadius);
+      const half = stroke / 2;
+      rect.setAttribute("x", half);
+      rect.setAttribute("y", half);
+      rect.setAttribute("width", width - stroke);
+      rect.setAttribute("height", height - stroke);
+      rect.setAttribute("rx", Math.max(r - half, 0));
+    });
+  }
+  layoutBorders();
+  window.addEventListener("resize", layoutBorders);
+
+  const digits = Array(LENGTH).fill("");
+  const value = () => digits.join("");
+
+  // Single place where a box's value changes, so every change animates:
+  // the old digit slides down and out, the new one slides up from the bottom.
+  function setDigit(i, d) {
+    if (digits[i] === d) return;
+    const layer = inputs[i].parentElement.querySelector(".otp__digits");
+
+    const cell = inputs[i].parentElement;
+    layer.querySelectorAll(".otp__digit:not(.otp__digit--leave)").forEach((el) => {
+      el.classList.remove("otp__digit--enter");
+      el.classList.add("otp__digit--leave");
+      cell.classList.add("otp__cell--leaving");
+      el.addEventListener("animationend", () => {
+        el.remove();
+        if (!layer.querySelector(".otp__digit--leave")) cell.classList.remove("otp__cell--leaving");
+      }, { once: true });
+    });
+
+    if (d) {
+      const el = document.createElement("span");
+      el.className = "otp__digit otp__digit--enter";
+      el.textContent = d;
+      layer.appendChild(el);
+    }
+
+    digits[i] = d;
+    inputs[i].value = d;
+    cell.classList.toggle("otp__cell--filled", !!d);
+  }
+
+  let successTimer;
+
+  function setState(state) {
+    // Any state change cancels a pending post-success reset.
+    clearTimeout(successTimer);
+    if (state === "success") successTimer = setTimeout(reset, SUCCESS_RESET_DELAY);
+
+    // Restart animations if the same state is re-applied.
+    root.dataset.state = "idle";
+    void root.offsetWidth;
+    root.dataset.state = state;
+    status.textContent =
+      state === "success" ? "Code accepted." :
+      state === "error" ? "Incorrect code. Try again." : "";
+  }
+
+  function clearResult() {
+    if (root.dataset.state !== "idle") setState("idle");
+  }
+
+  function checkComplete() {
+    const code = value();
+    if (code.length === LENGTH) {
+      // Drop the text selection on the last box so the result state reads cleanly.
+      requestAnimationFrame(() => {
+        const el = document.activeElement;
+        if (inputs.includes(el)) el.setSelectionRange(1, 1);
+      });
+      setState(code === CORRECT ? "success" : "error");
+    }
+  }
+
+  function fillFrom(index, digits) {
+    let i = index;
+    for (const d of digits) {
+      if (i >= LENGTH) break;
+      setDigit(i++, d);
+    }
+    inputs[Math.min(i, LENGTH - 1)].focus();
+    checkComplete();
+  }
+
+  inputs.forEach((input, index) => {
+    input.addEventListener("beforeinput", () => clearResult());
+
+    input.addEventListener("input", (e) => {
+      const typed = input.value.replace(/\D/g, "");
+      input.value = digits[index];
+      if (!typed) return;
+      fillFrom(index, typed);
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        clearResult();
+        if (digits[index]) {
+          setDigit(index, "");
+        } else if (index > 0) {
+          setDigit(index - 1, "");
+          inputs[index - 1].focus();
+        }
+      } else if (e.key === "Delete") {
+        e.preventDefault();
+        clearResult();
+        setDigit(index, "");
+      } else if (e.key === "ArrowLeft" && index > 0) {
+        e.preventDefault();
+        inputs[index - 1].focus();
+      } else if (e.key === "ArrowRight" && index < LENGTH - 1) {
+        e.preventDefault();
+        inputs[index + 1].focus();
+      } else if (e.key === "Escape") {
+        reset();
+      } else if (e.key.length === 1 && !/\d/.test(e.key) && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+      } else if (/^\d$/.test(e.key) && !e.metaKey && !e.ctrlKey) {
+        // Handle digits directly so fast typing and typing over a filled box both work.
+        e.preventDefault();
+        clearResult();
+        fillFrom(index, e.key);
+      }
+    });
+
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData("text") || "").replace(/\D/g, "");
+      if (!digits) return;
+      clearResult();
+      fillFrom(digits.length >= LENGTH ? 0 : index, digits);
+    });
+
+    input.addEventListener("focus", () => {
+      requestAnimationFrame(() => input.select());
+    });
+  });
+
+  function reset() {
+    inputs.forEach((_, i) => setDigit(i, ""));
+    setState("idle");
+    inputs[0].focus();
+  }
+  document.getElementById("reset").addEventListener("click", reset);
+</script>
+</body>
+</html>
