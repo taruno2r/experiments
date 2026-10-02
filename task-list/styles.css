@@ -1,0 +1,197 @@
+:root {
+  --task-text: #000000;
+  --task-text-completed: #a4a7ae;
+  --task-font: "Inter", system-ui, sans-serif;
+  --page-bg: #ffffff;
+
+  /* Shared by marking complete and incomplete: slow enough to watch */
+  --check-fill: 200ms;
+  --check-tick: 240ms;
+  --check-tick-delay: 150ms;
+  --check-text: 350ms;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --check-fill: 1ms;
+    --check-tick: 1ms;
+    --check-tick-delay: 0ms;
+    --check-text: 1ms;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--page-bg);
+  font-family: var(--task-font);
+}
+
+.back {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  font-size: 14px;
+  color: var(--task-text-completed);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--task-text);
+}
+
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Opaque so a moving item covers the ones it slides past. */
+.task-list > li {
+  position: relative;
+  background: var(--page-bg);
+}
+
+/* Task List — node 93:194 */
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 280px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.task:focus-visible {
+  outline: 2px solid #7c5cfa;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.task__check {
+  position: relative;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.task__radio,
+.task__fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.task__checkmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+}
+
+.task__label {
+  flex: 1 0 0;
+  min-width: 1px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--task-text);
+  word-break: break-word;
+}
+
+/* Strikethrough drawn as a background line so it can grow left → right,
+   continuing across wrapped lines. */
+.task__text {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 var(--strike-y, 58%);
+  background-size: 0% 1px;
+}
+
+/* ---------- Incomplete (and the un-check transition) ---------- */
+
+.task__radio {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+.task__fill {
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity var(--check-fill) ease-out,
+    transform var(--check-fill) ease-out;
+}
+
+.task__checkmark {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    opacity var(--check-fill) ease-out,
+    clip-path 0s var(--check-fill);
+}
+
+.task__label {
+  transition: color var(--check-text) ease;
+}
+
+.task__text {
+  transition: background-size var(--check-text) var(--ease-in-out);
+}
+
+/* ---------- Complete (and the check transition) ---------- */
+
+.task[aria-checked="true"] .task__radio {
+  opacity: 0;
+  transition: opacity 0s var(--check-fill);
+}
+
+.task[aria-checked="true"] .task__fill {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity var(--check-fill) ease-out,
+    transform var(--check-fill) var(--ease-out);
+}
+
+.task[aria-checked="true"] .task__checkmark {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity 0s,
+    clip-path var(--check-tick) var(--ease-in-out) var(--check-tick-delay);
+}
+
+.task[aria-checked="true"] .task__label {
+  color: var(--task-text-completed);
+  transition: color var(--check-text) ease;
+}
+
+.task[aria-checked="true"] .task__text {
+  background-size: 100% 1px;
+  transition: background-size var(--check-text) var(--ease-in-out);
+}

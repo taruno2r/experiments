@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="back" href="../">← Experiments</a>
+
+  <ul class="task-list">
+    <li>
+      <button class="task" type="button" role="checkbox" aria-checked="false">
+        <span class="task__check" aria-hidden="true">
+          <img class="task__radio" src="assets/radio.png" alt="" width="20" height="20" />
+          <img class="task__fill" src="assets/radio-checked.png" alt="" width="20" height="20" />
+          <img class="task__checkmark" src="assets/check.svg" alt="" width="12" height="12" />
+        </span>
+        <span class="task__label"><span class="task__text">Book a dentist appointment for next week</span></span>
+      </button>
+    </li>
+
+    <li>
+      <button class="task" type="button" role="checkbox" aria-checked="false">
+        <span class="task__check" aria-hidden="true">
+          <img class="task__radio" src="assets/radio.png" alt="" width="20" height="20" />
+          <img class="task__fill" src="assets/radio-checked.png" alt="" width="20" height="20" />
+          <img class="task__checkmark" src="assets/check.svg" alt="" width="12" height="12" />
+        </span>
+        <span class="task__label"><span class="task__text">Water the plants</span></span>
+      </button>
+    </li>
+
+    <li>
+      <button class="task" type="button" role="checkbox" aria-checked="false">
+        <span class="task__check" aria-hidden="true">
+          <img class="task__radio" src="assets/radio.png" alt="" width="20" height="20" />
+          <img class="task__fill" src="assets/radio-checked.png" alt="" width="20" height="20" />
+          <img class="task__checkmark" src="assets/check.svg" alt="" width="12" height="12" />
+        </span>
+        <span class="task__label"><span class="task__text">Walk the dog</span></span>
+      </button>
+    </li>
+  </ul>
+
+  <script src="script.js"></script>
+</body>
+</html>

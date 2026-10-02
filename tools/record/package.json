@@ -1,0 +1,13 @@
+{
+  "name": "experiments-recorder",
+  "private": true,
+  "description": "Records an experiment's interaction to a 1920×1080, 60fps MP4.",
+  "type": "module",
+  "scripts": {
+    "record": "node record.mjs"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "playwright-core": "^1.63.0"
+  }
+}
