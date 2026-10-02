@@ -19,7 +19,7 @@ Then open http://localhost:5180. This server turns off browser caching, so edits
 ## Add an experiment
 
 1. Create a folder, e.g. `my-thing/`, with its own `index.html`.
-2. Add a card for it in the root `index.html`. The card shows the page itself as a static preview (an `<iframe>` pointing at the folder).
+2. Add a card for it in the root `index.html` (a title only). The card shows the page itself as a static preview (an `<iframe>` pointing at the folder).
 3. To hide anything from that preview (like the back link), style it under `.embedded`, which the page adds when it's inside the gallery.
 
 ## Record a video

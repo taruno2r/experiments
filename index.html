@@ -15,7 +15,6 @@
       --preview: #f7f7f7;
       --preview-border: #efefef;
       --text: #0a0a0a;
-      --muted: #737373;
     }
 
     * {
@@ -110,18 +109,10 @@
       padding: 14px 8px 4px;
     }
 
-
     .card h2 {
-      margin: 0 0 3px;
+      margin: 0;
       font-size: 14px;
       font-weight: 500;
-      line-height: 20px;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
       line-height: 20px;
     }
 
@@ -131,7 +122,7 @@
   <main>
     <h1>Experiments</h1>
 
-    <!-- Add a card per experiment: folder name, title, one line. -->
+    <!-- Add a card per experiment: folder name and title. -->
     <ul class="grid">
       <li>
         <a class="card" href="task-list/">
@@ -140,7 +131,6 @@
           </div>
           <div class="meta">
             <h2>Task list</h2>
-            <p>Tick, strike and reorder</p>
           </div>
         </a>
       </li>
@@ -151,7 +141,6 @@
           </div>
           <div class="meta">
             <h2>OTP input</h2>
-            <p>Digits slide in, borders draw on</p>
           </div>
         </a>
       </li>
